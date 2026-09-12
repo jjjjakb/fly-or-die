@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>FLY OR DIE — beat a fruit fly running a simulated connectome</title>
+<meta name="description" content="I turned a fruit fly's brain wiring into a boss fight. You get 10 shots. The fly dodges with a simulated spiking neural circuit modelled on the real giant-fibre escape reflex. Can you beat it?" />
+<meta name="theme-color" content="#05060a" />
+
+<meta property="og:type" content="website" />
+<meta property="og:title" content="FLY OR DIE — 10 shots vs a simulated fly brain" />
+<meta property="og:description" content="I turned a fruit fly's brain wiring into a boss fight. You get 10 shots. Can you beat it?" />
+<meta property="og:image" content="./og.png" />
+<meta property="og:url" content="./" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="FLY OR DIE — 10 shots vs a simulated fly brain" />
+<meta name="twitter:description" content="I turned a fruit fly's brain wiring into a boss fight. You get 10 shots. Can you beat it?" />
+<meta name="twitter:image" content="./og.png" />
+
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%2305060a'/%3E%3Ccircle cx='16' cy='17' r='5' fill='%23ff2e88'/%3E%3Cellipse cx='9' cy='12' rx='5' ry='2.4' fill='%233ad2ff' opacity='.75' transform='rotate(-28 9 12)'/%3E%3Cellipse cx='23' cy='12' rx='5' ry='2.4' fill='%233ad2ff' opacity='.75' transform='rotate(28 23 12)'/%3E%3C/svg%3E" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+
+<canvas id="bgCanvas" aria-hidden="true"></canvas>
+<div class="scanlines" aria-hidden="true"></div>
+
+<header class="topbar">
+  <a class="brand" href="#top">FLY<span>OR</span>DIE</a>
+  <nav class="topnav">
+    <a href="#arena">Arena</a>
+    <a href="#science">The science</a>
+    <a href="#sources">Source data</a>
+    <button id="soundToggle" class="icon-btn" title="Sound on/off" aria-label="Toggle sound">♪</button>
+  </nav>
+</header>
+
+<main id="top">
+
+  <!-- HERO -->
+  <section class="hero">
+    <p class="kicker">// MCNS &nbsp;·&nbsp; MALE ADULT FLY CENTRAL NERVOUS SYSTEM</p>
+    <h1 class="title">
+      <span class="t1">FLY</span>
+      <span class="t2">OR DIE</span>
+    </h1>
+    <p class="hook">I turned a fruit fly's brain wiring into a boss fight.<br />
+      <strong>You get 10 shots. Can you beat it?</strong></p>
+    <p class="subhook">166,000 neurons. 125 million synapses. One very good escape reflex.
+      The fly in the arena below is driven by a live spiking simulation whose escape line mirrors
+      the real <em>giant-fibre</em> circuit — and no two rounds are wired the same.</p>
+    <div class="hero-cta">
+      <a class="btn btn-primary" href="#arena" id="heroPlay">▶ ENTER THE ARENA</a>
+      <a class="btn btn-ghost" href="#science">How the dodge works</a>
+    </div>
+    <div class="hero-stats">
+      <div><b>166,000+</b><span>neurons mapped</span></div>
+      <div><b>125M</b><span>synaptic connections</span></div>
+      <div><b>3</b><span>hits to win</span></div>
+      <div><b>10</b><span>shots total</span></div>
+    </div>
+  </section>
+
+  <!-- ARENA -->
+  <section id="arena" class="arena-section">
+    <div class="section-head">
+      <h2>THE ARENA</h2>
+      <p>Mouse / finger to aim &nbsp;·&nbsp; click or tap to fire &nbsp;·&nbsp; space to fire &nbsp;·&nbsp; R to restart</p>
+    </div>
+
+    <div class="play-grid">
+      <!-- left: game -->
+      <div class="stage">
+        <div class="hud">
+          <div class="hud-group">
+            <span class="hud-label">SHOTS</span>
+            <div id="shotsPips" class="pips" aria-label="shots remaining"></div>
+          </div>
+          <div class="hud-group center">
+            <span class="hud-label">FLY HP</span>
+            <div id="hpPips" class="pips hp" aria-label="fly health"></div>
+          </div>
+          <div class="hud-group right">
+            <span class="hud-label">TIME</span>
+            <span id="timer" class="hud-val">0.0s</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <canvas id="arenaCanvas" aria-label="Arcade arena"></canvas>
+          <div id="statusLine" class="status-line">AWAITING CHALLENGER</div>
+
+          <!-- start overlay -->
+          <div id="startOverlay" class="overlay show">
+            <div class="overlay-card">
+              <div class="fly-mark">🪰</div>
+              <h3>BOSS: <span class="accent">DROSOPHILA</span></h3>
+              <p class="overlay-hook">“I turned a fruit fly's brain wiring into a boss fight.<br />You get 10 shots. Can you beat it?”</p>
+              <ul class="overlay-list">
+                <li><b>10</b> darts. <b>3</b> hits to win.</li>
+                <li>It dodges using a live spiking escape circuit.</li>
+                <li>It commits hard to every dodge. <b>Bait it, then hit it while it is WINDED.</b></li>
+                <li>Miss a lot and it <b>habituates</b> — that is your fallback.</li>
+              </ul>
+              <button id="btnStart" class="btn btn-primary big">▶ FIGHT THE FLY</button>
+              <p class="tiny">Best on desktop. Sound on for full arcade flavour.</p>
+            </div>
+          </div>
+
+          <!-- end overlay -->
+          <div id="endOverlay" class="overlay">
+            <div class="overlay-card result">
+              <div id="endGrade" class="grade">A</div>
+              <h3 id="endTitle">YOU WIN</h3>
+              <p id="endSub" class="overlay-hook">The fly has been debugged.</p>
+              <div id="endStats" class="end-stats"></div>
+              <div class="share-row">
+                <button id="btnShareX" class="btn btn-primary">Share on X</button>
+                <button id="btnCopy" class="btn btn-ghost">Copy link</button>
+              </div>
+              <div class="share-row">
+                <button id="btnRetry" class="btn btn-ghost big">⟲ Run it back</button>
+              </div>
+              <p id="copyMsg" class="tiny"></p>
+            </div>
+          </div>
+        </div>
+
+        <div class="below-hud">
+          <div class="meter-wrap">
+            <div class="meter-top"><span>HABITUATION</span><span id="habPct">0%</span></div>
+            <div class="meter"><div id="habFill" class="meter-fill"></div></div>
+            <p class="meter-note">Repeated near-misses depress the escape relay. Faded fly = slower, weaker dodge.</p>
+          </div>
+          <div class="legend">
+            <span><i style="background:#3ad2ff"></i>sensory</span>
+            <span><i style="background:#8a6bff"></i>interneuron</span>
+            <span><i style="background:#ffab2e"></i>descending</span>
+            <span><i style="background:#ff2e88"></i>giant fibre</span>
+            <span><i style="background:#8dff6b"></i>motor</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- right: neural activity -->
+      <aside class="neural-panel">
+        <div class="panel-head">
+          <h3>LIVE NERVOUS SYSTEM</h3>
+          <span id="simState" class="dot-live">● SIM</span>
+        </div>
+        <canvas id="netCanvas" class="net-canvas" aria-label="Connectome graph"></canvas>
+        <div class="readouts">
+          <div class="ro"><span>LOOM (THREAT)</span><b id="loomVal">0.00</b></div>
+          <div class="ro"><span>GIANT FIBRE</span><b id="gfState" class="gf-idle">ARMED</b></div>
+          <div class="ro"><span>MOTOR L/R</span><b id="motorVal">0.00 / 0.00</b></div>
+        </div>
+        <div class="raster-wrap">
+          <div class="raster-label">SPIKE RASTER — <span id="neuronCount">70</span> neurons / <span id="synapseCount">0</span> synapses</div>
+          <canvas id="rasterCanvas" class="raster-canvas" aria-label="Spike raster"></canvas>
+        </div>
+        <p class="disclaimer">Biologically-inspired LIF simulation, <b>not</b> a recording from the connectome.
+          It reproduces the logic of the published escape pathway: looming detectors → descending neurons → giant fibre → motor.</p>
+      </aside>
+    </div>
+  </section>
+
+  <!-- SCIENCE -->
+  <section id="science" class="science">
+    <div class="section-head">
+      <h2>WHAT YOU'RE ACTUALLY LOOKING AT</h2>
+      <p>The real dataset behind the fly in the arena.</p>
+    </div>
+
+    <div class="sci-grid">
+      <article class="sci-card">
+        <h3>🧠 The dataset: MCNS</h3>
+        <p>On <b>3 September 2026</b> a consortium led by <b>HHMI Janelia</b>, with the
+          <b>MRC Laboratory of Molecular Biology</b> and <b>Google Research</b>, published the first complete
+          connectome of an entire adult <b>male</b> <i>Drosophila</i> central nervous system — central brain,
+          both optic lobes and the ventral nerve cord, joined by an intact neck connective.</p>
+        <p><b>166,000+ neurons</b> and <b>125 million synaptic connections</b> — the largest brain map by neuron
+          count to date. It was proofread and annotated by human experts and is publicly viewable, explorable
+          and downloadable.</p>
+      </article>
+
+      <article class="sci-card">
+        <h3>⚡ The escape reflex</h3>
+        <p>Flies survive because of a dedicated, extremely fast escape pathway. Looming-sensitive visual
+          neurons (LC4 / LPLC2) detect an expanding dark object — a swatter, a hand, a dart — and drive
+          descending neurons that command the <b>giant fibre</b>, which fires the flight and leg muscles in
+          a single decisive burst.</p>
+        <p>That's the circuit this game simulates, live, at 1&nbsp;ms resolution. When the pink GF node fires,
+          the fly physically commits to a dodge — the spike <i>is</i> the movement.</p>
+      </article>
+
+      <article class="sci-card">
+        <h3>🪰 Why it eventually stops dodging</h3>
+        <p>Real flies <b>habituate</b>: wave your hand repeatedly without hitting it and the escape response
+          weakens. The simulation reproduces this with synaptic depression and a hard-adapting giant fibre —
+          repeated whiffs raise the trigger threshold and soften the dodge.</p>
+        <p>So the winning strategy is real neuroscience: <b>bait the reflex, let it fatigue, then strike.</b>
+          A hit re-sensitises it, so don't waste your opening.</p>
+      </article>
+
+      <article class="sci-card">
+        <h3>🔬 Male vs female</h3>
+        <p>Because a female CNS connectome already existed, MCNS enables the first synaptic-resolution
+          comparison across sexes of an adult animal with complex behaviour: <b>262 sex-specific</b> and
+          <b>114 sexually dimorphic</b> cell types (4.8% of the central brain). Around 100 male-specific
+          interneuron types coordinate most male-specific behaviours.</p>
+        <p>Three companion papers use the map to dissect the fly's visual system, taste system and social
+          behaviour.</p>
+      </article>
+    </div>
+
+    <div class="callout">
+      <p><b>Honesty note:</b> the arena's fly is <i>not</i> running the full 166,000-neuron connectome in your
+        browser. It runs a compact, re-seeded LIF network that mirrors the published escape pathway's logic.
+        The numbers in the hero are the real published figures and link below.</p>
+    </div>
+  </section>
+
+  <!-- SOURCES -->
+  <section id="sources" class="sources">
+    <div class="section-head">
+      <h2>SOURCE DATA &amp; READING</h2>
+      <p>Go look at the real thing — it's free.</p>
+    </div>
+    <div class="src-grid">
+      <a class="src" href="https://male-cns.janelia.org/" target="_blank" rel="noopener">
+        <b>Male CNS Connectome portal</b><span>Janelia — view &amp; download the data</span></a>
+      <a class="src" href="https://codex.flywire.ai/?dataset=mcns" target="_blank" rel="noopener">
+        <b>FlyWire Codex — MCNS</b><span>Explore the connectome in the browser</span></a>
+      <a class="src" href="https://www.janelia.org/project-team/flyem/male-cns-connectome" target="_blank" rel="noopener">
+        <b>Janelia project page</b><span>Methods, papers, team</span></a>
+      <a class="src" href="https://research.google/blog/a-connectomics-milestone-mapping-the-complete-male-fruit-fly-brain/" target="_blank" rel="noopener">
+        <b>Google Research</b><span>“A connectomics milestone” (3 Sep 2026)</span></a>
+      <a class="src" href="https://www.hhmi.org/news/scientists-complete-full-map-fruit-fly-brain-connectome" target="_blank" rel="noopener">
+        <b>HHMI news</b><span>Two decades to the full fly CNS</span></a>
+      <a class="src" href="https://mrclmb.ac.uk/news-events/articles/first-complete-connectome-of-male-fly-central-nervous-system-allows-for-unprecedented-male-female-brain-comparison/" target="_blank" rel="noopener">
+        <b>MRC LMB</b><span>Male/female brain comparison</span></a>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <p><b>FLY OR DIE</b> — a fan-made science demo. Not affiliated with HHMI Janelia, Google or the MCNS consortium.
+      Published data © the original authors; visual simulation is an independent, biologically-inspired model.</p>
+    <p class="tiny">Built as an interactive tribute to the completion of the male <i>Drosophila</i> CNS connectome (2026).</p>
+  </footer>
+</main>
+
+<script src="./neural.js"></script>
+<script src="./game.js"></script>
+</body>
+</html>
