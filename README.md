@@ -53,6 +53,30 @@ python3 -m http.server 8123
 # then open http://localhost:8123/
 ```
 
+## Deploy to Cloudflare Pages
+
+[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/jjjjakb/fly-or-die)
+
+**Option A — one-click (Git-connected, auto-deploys on push)**
+
+Click the button above, or in the Cloudflare dashboard: **Workers & Pages → Create → Pages →
+Connect to Git → `jjjjakb/fly-or-die`**, then set:
+
+| Setting | Value |
+| --- | --- |
+| Framework preset | None |
+| Build command | `bash build.sh` |
+| Build output directory | `dist` |
+
+**Option B — direct upload from the CLI**
+
+```bash
+CLOUDFLARE_API_TOKEN=... CLOUDFLARE_ACCOUNT_ID=... ./deploy.sh
+```
+
+The token needs the **Cloudflare Pages: Edit** permission. `deploy.sh` stages a clean
+`dist/` (via `build.sh`) and uploads it with `wrangler pages deploy`.
+
 ## Files
 
 | File | Purpose |
@@ -62,6 +86,10 @@ python3 -m http.server 8123
 | `neural.js` | Spiking network model (giant-fibre escape + habituation) |
 | `game.js` | Arena, fly behaviour, darts, HUD, neural visualisation, sharing |
 | `og.png` | Social share card |
+| `build.sh` | Stages the static site into `dist/` |
+| `deploy.sh` | Direct-upload deploy to Cloudflare Pages |
+| `wrangler.toml` | Cloudflare Pages project config |
+| `_headers` | Cache + security headers for Cloudflare Pages |
 
 ## Sources
 
