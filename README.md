@@ -77,6 +77,19 @@ CLOUDFLARE_API_TOKEN=... CLOUDFLARE_ACCOUNT_ID=... ./deploy.sh
 The token needs the **Cloudflare Pages: Edit** permission. `deploy.sh` stages a clean
 `dist/` (via `build.sh`) and uploads it with `wrangler pages deploy`.
 
+## Gameplay clip
+
+`clip/fly-or-die-720p.mp4` — a real 12-second winning run (1280×720, H.264, 30 fps,
+silent), recorded from the live game and ready to post. Regenerate it with:
+
+```bash
+python3 -m http.server 8123          # serve the site
+python3 tools/record_gameplay.py 8   # record 8 takes; keeps winners in /tmp/flytakes
+```
+
+The recorder drives the page with genuine mouse events and plays the intended
+bait-and-punish strategy, so the fly's dodges are driven by the live neural simulation.
+
 ## Files
 
 | File | Purpose |
@@ -90,6 +103,8 @@ The token needs the **Cloudflare Pages: Edit** permission. `deploy.sh` stages a 
 | `deploy.sh` | Direct-upload deploy to Cloudflare Pages |
 | `wrangler.toml` | Cloudflare Pages project config |
 | `_headers` | Cache + security headers for Cloudflare Pages |
+| `clip/` | Recorded gameplay clip for social media |
+| `tools/record_gameplay.py` | Automated gameplay recorder |
 
 ## Sources
 
